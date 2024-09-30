@@ -3,7 +3,6 @@ pandas
 scikit-learn
 streamlit
 plotly
-seaborn 
-sklearn
-xgboost 
+seaborn
+xgboost
 joblib
