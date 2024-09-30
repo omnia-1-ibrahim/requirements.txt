@@ -40,7 +40,7 @@ page = st.sidebar.radio("Select a page:", ("Home", "Churn Analysis", "Prediction
 # الصفحة الرئيسية
 if page == "Home":
     st.title("Telecom Churn Analysis and Prediction")
-    st.image("path_to_your_image.jpg", use_column_width=True)  # استبدل بمسار الصورة الخاصة بك
+    st.image("‪C:\Users\Dell\Downloads\dataset-cover.png", use_column_width=True)  # استبدل بمسار الصورة الخاصة بك
     st.write("""
     Welcome to our Telecom Churn Analysis and Prediction application. Use the sidebar to navigate to different sections.
     
