@@ -116,14 +116,35 @@ if st.button('Predict'):
 
 # عرض معلومات الفريق
 st.subheader("Meet Our Team")
-st.write("""
-Our team consists of dedicated professionals:
-- Abdelrahman Sherif Kamel
-- Yossef Mohamed Mohamed
-- Omnia Ibrahim Sayed
-""")
-st.write("Contact: support@example.com")  # إضافة معلومات الاتصال
-st.image("path_to_team_image.jpg", use_column_width=True)  # استبدل بمسار صورة الفريق
+# عرض معلومات الفريق
+st.subheader("Meet Our Team")
+
+team_members = [
+    {
+         "name": "Omnia Ibrahim Sayed",
+        "linkedin": "linkedin.com/in/omnia-ibrahim-8168b022b"
+    },
+    {
+        "name": "Yossef Mohamed Mohamed",
+        "linkedin": "https://www.linkedin.com/in/yossef-mohamed/"
+    },
+    {
+        "name": "Abdelrahman Sherif Kamel",
+        "linkedin": "https://www.linkedin.com/in/abdelrahman-kamel/"
+    }
+]
+
+for member in team_members:
+    st.markdown(
+        f"""
+        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+            <span style="margin-right: 10px; font-size: 16px;">{member['name']}</span>
+            <a href="{member['linkedin']}" target="_blank" style="background-color: orange; color: white; padding: 5px 10px; text-decoration: none; border-radius: 5px;">LinkedIn</a>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
 
 # عرض الموارد
 st.subheader("View Resources")
