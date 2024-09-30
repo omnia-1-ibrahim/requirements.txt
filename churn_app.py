@@ -1,4 +1,4 @@
-import streamlit as st
+import streamlit as st 
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -15,14 +15,14 @@ import joblib
 st.title("Professional Telecom Churn Analysis and Prediction")
 
 # Load default dataset option
-if st.checkbox("Use example dataset"):
-    data = pd.read_csv('https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv')  # Replace with an actual churn dataset
+if st.checkbox("Use example dataset", key="use_example"):
+    data = pd.read_csv(r'C:\Users\Dell\Downloads\WA_Fn-UseC_-Telco-Customer-Churn.csv') # Replace with an actual churn dataset
     st.write("Using example dataset.")
 else:
     uploaded_file = st.file_uploader("Upload your CSV file", type="csv")
 
-if uploaded_file or st.checkbox("Use example dataset"):
-    if not st.checkbox("Use example dataset"):
+if uploaded_file or st.checkbox("Use example dataset", key="use_example_2"):
+    if not st.checkbox("Use example dataset", key="use_example_again"):
         data = pd.read_csv(uploaded_file)
 
     # Display raw data
@@ -42,7 +42,7 @@ if uploaded_file or st.checkbox("Use example dataset"):
 
     # Exploratory data analysis
     st.subheader('Exploratory Data Analysis')
-    if st.checkbox('Show distribution of target variable'):
+    if st.checkbox('Show distribution of target variable', key="show_distribution"):
         churn_count = data[target_column].value_counts()
         st.write(f"Churned: {churn_count[1]}, Not churned: {churn_count[0]}")
         fig = px.histogram(data, x=target_column, title='Churn Distribution')
@@ -61,7 +61,7 @@ if uploaded_file or st.checkbox("Use example dataset"):
     y = data[target_column]
 
     # Split ratio input
-    test_size = st.slider('Select test data size (in %)', 10, 50, 20) / 100
+    test_size = st.slider('Select test data size (in %)', 10, 50, 20, key="test_size") / 100
 
     # Split data into training and testing
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
@@ -70,8 +70,8 @@ if uploaded_file or st.checkbox("Use example dataset"):
     st.subheader('Model Selection and Training')
     model_choice = st.selectbox("Choose a model", ('Random Forest', 'Logistic Regression', 'XGBoost'))
 
-    n_estimators = st.slider('Number of trees for Random Forest', 100, 1000, step=50)
-    learning_rate = st.slider('Learning rate for XGBoost', 0.01, 0.3, step=0.01)
+    n_estimators = st.slider('Number of trees for Random Forest', 100, 1000, step=50, key="n_estimators")
+    learning_rate = st.slider('Learning rate for XGBoost', 0.01, 0.3, step=0.01, key="learning_rate")
 
     if model_choice == 'Random Forest':
         model = RandomForestClassifier(n_estimators=n_estimators, random_state=42)
@@ -134,7 +134,7 @@ if uploaded_file or st.checkbox("Use example dataset"):
 
     # Recommendations
     st.subheader('Recommendations Based on Analysis')
-    st.write("""
+    st.write(""" 
     1. New customers are more likely to churn. Offer attractive deals to retain them.
     2. Provide rewards or gifts for customers with short-term contracts to encourage renewal.
     3. Long-tenure customers rarely churn, so offer them privileges to maintain loyalty.
