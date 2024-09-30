@@ -16,7 +16,7 @@ st.title("Professional Telecom Churn Analysis and Prediction")
 
 # Load default dataset option
 if st.checkbox("Use example dataset", key="use_example"):
-    data = pd.read_csv(r'C:\Users\Dell\Downloads\WA_Fn-UseC_-Telco-Customer-Churn.csv') # Replace with an actual churn dataset
+    data = pd.read_csv('C:\Users\Dell\Downloads\WA_Fn-UseC_-Telco-Customer-Churn.csv') # Replace with an actual churn dataset
     st.write("Using example dataset.")
 else:
     uploaded_file = st.file_uploader("Upload your CSV file", type="csv")
