@@ -34,11 +34,13 @@ st.markdown(
 )
 
 # تحميل مجموعة البيانات من GitHub
-data_url = "https://raw.githubusercontent.com/username/repository/main/dataset.csv"  # استبدل الرابط برابط الـ GitHub الخاص بك
+data_url = "https://github.com/omnia-1-ibrahim/requirements.txt/blob/main/WA_Fn-UseC_-Telco-Customer-Churn.csv"  # استبدل الرابط برابط الـ GitHub الخاص بك
 data = pd.read_csv(data_url)
 
 # الصفحة الرئيسية
 st.title("Telecom Churn Analysis and Prediction")
+st.image("dataset-cover.png", use_column_width=True)  # تأكد من تحميل الصورة
+
 
 # عرض البيانات الخام
 st.subheader('Raw Data')
