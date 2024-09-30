@@ -114,8 +114,29 @@ if st.button('Predict'):
     except ValueError:
         st.error("Please enter valid numeric values separated by commas.")
 
-# عرض معلومات الفريق
-st.subheader("Meet Our Team")
+
+
+# عرض الموارد
+st.subheader("View Resources")
+
+st.subheader("Jupyter Notebook")
+st.write("You can view the Jupyter Notebook [here](https://github.com/omnia-1-ibrahim/requirements.txt/blob/main/final_with_mlflow%20(1).ipynb)")  # استبدل بالرابط الصحيح
+
+st.subheader("Power BI Report")
+st.write("Check the Power BI report embedded below:")
+st.markdown(
+    '<iframe width="800" height="600" src="YOUR_POWER_BI_EMBED_LINK" frameborder="0" allowFullScreen="true"></iframe>',
+    unsafe_allow_html=True
+)
+
+st.subheader("Presentation")
+st.write("Upload your presentation file below:")
+uploaded_presentation = st.file_uploader("Upload your PowerPoint presentation", type=["pptx", "ppt"])
+
+if uploaded_presentation:
+    st.success("Presentation uploaded successfully!")
+    st.write("You can view it in PowerPoint or other presentation software.")
+
 # عرض معلومات الفريق
 st.subheader("Meet Our Team")
 
@@ -144,26 +165,4 @@ for member in team_members:
         """,
         unsafe_allow_html=True
     )
-
-
-# عرض الموارد
-st.subheader("View Resources")
-
-st.subheader("Jupyter Notebook")
-st.write("You can view the Jupyter Notebook [here](https://raw.githubusercontent.com/omnia-1-ibrahim/requirements.txt/refs/heads/main/final_with_mlflow%20(1).ipynb)")  # استبدل بالرابط الصحيح
-
-st.subheader("Power BI Report")
-st.write("Check the Power BI report embedded below:")
-st.markdown(
-    '<iframe width="800" height="600" src="YOUR_POWER_BI_EMBED_LINK" frameborder="0" allowFullScreen="true"></iframe>',
-    unsafe_allow_html=True
-)
-
-st.subheader("Presentation")
-st.write("Upload your presentation file below:")
-uploaded_presentation = st.file_uploader("Upload your PowerPoint presentation", type=["pptx", "ppt"])
-
-if uploaded_presentation:
-    st.success("Presentation uploaded successfully!")
-    st.write("You can view it in PowerPoint or other presentation software.")
 
