@@ -139,7 +139,7 @@ for member in team_members:
         f"""
         <div style="display: flex; align-items: center; margin-bottom: 10px;">
             <span style="margin-right: 10px; font-size: 16px;">{member['name']}</span>
-            <a href="{member['linkedin']}" target="_blank" style="background-color: orange; color: white; padding: 5px 10px; text-decoration: none; border-radius: 5px;">LinkedIn</a>
+            <a href="{member['linkedin']}" target="_blank" style="background-color: orange; color: black; padding: 5px 10px; text-decoration: none; border-radius: 5px;">LinkedIn</a>
         </div>
         """,
         unsafe_allow_html=True
@@ -150,7 +150,7 @@ for member in team_members:
 st.subheader("View Resources")
 
 st.subheader("Jupyter Notebook")
-st.write("You can view the Jupyter Notebook [here](https://nbviewer.jupyter.org/)")  # استبدل بالرابط الصحيح
+st.write("You can view the Jupyter Notebook [here](https://raw.githubusercontent.com/omnia-1-ibrahim/requirements.txt/refs/heads/main/final_with_mlflow%20(1).ipynb)")  # استبدل بالرابط الصحيح
 
 st.subheader("Power BI Report")
 st.write("Check the Power BI report embedded below:")
