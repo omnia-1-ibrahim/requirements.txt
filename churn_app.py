@@ -132,10 +132,10 @@ st.subheader("Jupyter Notebook")
 st.write("You can view the Jupyter Notebook [here](https://github.com/omnia-1-ibrahim/requirements.txt/blob/main/final_with_mlflow%20(1).ipynb)")  # استبدل بالرابط الصحيح
 
 st.subheader("Power BI Report")
-st.write("You can view the Presentation [here](https://github.com/omnia-1-ibrahim/requirements.txt/blob/main/graduation%20project.pptx)")  # استبدل بالرابط الصحيح
+st.write("You can view the Presentation [here](https://github.com/omnia-1-ibrahim/requirements.txt/blob/main/4_6041671993533667237.pbix)")
 
 st.subheader("Presentation")
-st.write("You can view the Presentation [here](https://github.com/omnia-1-ibrahim/requirements.txt/blob/main/graduation%20project.pptx)")  # استبدل بالرابط الصحيح
+st.write("You can view the Presentation [here](https://github.com/omnia-1-ibrahim/requirements.txt/blob/main/graduation%20project.pptx)")  
 
 # عرض معلومات الفريق
 st.subheader("Meet Our Team")
@@ -143,15 +143,15 @@ st.subheader("Meet Our Team")
 team_members = [
     {
         "name": "Omnia Ibrahim Sayed",
-        "linkedin": "https://www.linkedin.com/in/omnia-ibrahim-8168b022b"  # رابط LinkedIn الخاص بك
+        "linkedin": "https://www.linkedin.com/in/omnia-ibrahim-8168b022b"  
     },
     {
         "name": "Yossef Mohamed Mohamed",
-        "linkedin": "https://www.linkedin.com/in/yossef-mohamed/"
+        "linkedin": "https://www.linkedin.com/in/yousef-mohamed-8a4132221/"
     },
     {
         "name": "Abdelrahman Sherif Kamel",
-        "linkedin": "https://www.linkedin.com/in/abdelrahman-kamel/"
+        "linkedin": "http://linkedin.com/in/abdelrahman-sherif-203b66198"
     }
 ]
 
@@ -159,7 +159,7 @@ for member in team_members:
     st.markdown(
         f"""
         <div style="display: flex; align-items: center; margin-bottom: 10px;">
-            <span style="margin-right: 10px; font-size: 18px;">{member['name']}</span>  <!-- تغيير حجم الخط هنا -->
+            <span style="margin-right: 10px; font-size: 18px;">{member['name']}</span> 
             <a href="{member['linkedin']}" target="_blank" style="background-color: orange; color: black; padding: 5px 10px; text-decoration: none; border-radius: 5px;">LinkedIn</a>
         </div>
         """,
