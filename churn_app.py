@@ -125,7 +125,7 @@ st.write("You can view the Jupyter Notebook [here](https://github.com/omnia-1-ib
 st.subheader("Power BI Report")
 st.write("Check the Power BI report embedded below:")
 st.markdown(
-    '<a href="file://C:/Users/Dell/Downloads/graduation project.pptx" target="_blank">Open Presentation</a>',
+    '<a href="file:https://github.com/omnia-1-ibrahim/requirements.txt/blob/main/graduation%20project.pptx" target="_blank">Open Presentation</a>',
     unsafe_allow_html=True
 )
 
