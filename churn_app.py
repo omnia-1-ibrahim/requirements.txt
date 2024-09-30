@@ -95,26 +95,16 @@ models = {
 }
 
 # تدريب النماذج وعرضها
+predictions = {}
 for model_name, model in models.items():
     model.fit(X_train, y_train)
-    st.write(f"{model_name} model is trained.")
+    predictions[model_name] = model.predict(X_test)
 
-# نموذج جاهز للتنبؤ
-st.write("Models are ready for prediction.")
-user_input = st.text_input('Enter customer features as comma-separated values (matching the dataset columns)')
-
-if st.button('Predict'):
-    try:
-        input_data = [float(x) for x in user_input.split(',')]
-        if len(input_data) == X.shape[1]:  # Check if the input length matches the number of features
-            # Get predictions from all models
-            predictions = {model_name: model.predict([input_data])[0] for model_name, model in models.items()}
-            for model_name, prediction in predictions.items():
-                st.write(f'{model_name}: The customer is predicted to {"churn" if prediction == 1 else "not churn"}.')
-        else:
-            st.error(f"Please enter {X.shape[1]} values.")
-    except ValueError:
-        st.error("Please enter valid numeric values separated by commas.")
+# عرض التنبؤات لكل نموذج
+st.write("Predictions for the test set:")
+for model_name, preds in predictions.items():
+    st.write(f"{model_name}:")
+    st.write(preds)
 
 # عرض الموارد
 st.subheader("View Resources")
@@ -142,7 +132,7 @@ team_members = [
     },
     {
         "name": "Abdelrahman Sherif Kamel",
-        "linkedin": "http://linkedin.com/in/abdelrahman-sherif-203b66198"
+        "linkedin": "https://www.linkedin.com/in/abdelrahman-kamel/"
     }
 ]
 
