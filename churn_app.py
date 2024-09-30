@@ -94,17 +94,36 @@ models = {
     "XGBoost": XGBClassifier()
 }
 
-# تدريب النماذج وعرضها
+# تدريب النماذج وحساب الأداء
 predictions = {}
 for model_name, model in models.items():
     model.fit(X_train, y_train)
-    predictions[model_name] = model.predict(X_test)
-
-# عرض التنبؤات لكل نموذج
-st.write("Predictions for the test set:")
-for model_name, preds in predictions.items():
-    st.write(f"{model_name}:")
-    st.write(preds)
+    preds = model.predict(X_test)
+    predictions[model_name] = preds
+    
+    # حساب مقاييس الأداء
+    accuracy = accuracy_score(y_test, preds)
+    recall = recall_score(y_test, preds)
+    f1 = f1_score(y_test, preds)
+    conf_matrix = confusion_matrix(y_test, preds)
+    
+    # عرض النتائج
+    st.write(f"### {model_name} Performance:")
+    st.write(f"**Accuracy:** {accuracy:.2f}")
+    st.write(f"**Recall:** {recall:.2f}")
+    st.write(f"**F1 Score:** {f1:.2f}")
+    
+    # عرض مصفوفة الارتباك
+    st.write("**Confusion Matrix:**")
+    st.write(conf_matrix)
+    
+    # رسم مصفوفة الارتباك
+    plt.figure(figsize=(5, 4))
+    sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', xticklabels=['Not Churn', 'Churn'], yticklabels=['Not Churn', 'Churn'])
+    plt.xlabel('Predicted')
+    plt.ylabel('Actual')
+    plt.title(f'{model_name} Confusion Matrix')
+    st.pyplot(plt)
 
 # عرض الموارد
 st.subheader("View Resources")
