@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.express as px
@@ -41,7 +42,6 @@ data = pd.read_csv(data_url)
 st.title("Telecom Churn Analysis and Prediction")
 st.image("dataset-cover.png", use_column_width=True)  # تأكد من تحميل الصورة
 
-
 # عرض البيانات الخام
 st.subheader('Raw Data')
 st.write(data.head())
@@ -64,7 +64,16 @@ if 'SomeCategoryColumn' in data.columns:  # استبدل 'SomeCategoryColumn' ب
 # تحليل ارتباط البيانات
 st.subheader('Correlation Heatmap')
 plt.figure(figsize=(10, 6))
-sns.heatmap(data.corr(), annot=True, fmt=".2f", cmap='coolwarm')
+
+# Select only numeric columns for correlation
+numeric_data = data.select_dtypes(include=[np.number])
+
+# Check if there are enough numeric columns to compute correlation
+if numeric_data.shape[1] > 1:
+    sns.heatmap(numeric_data.corr(), annot=True, fmt=".2f", cmap='coolwarm')
+else:
+    st.write("Not enough numeric columns to compute correlation.")
+
 st.pyplot()
 
 # إعداد نموذج التنبؤ
@@ -93,10 +102,17 @@ model.fit(X_train, y_train)
 # نموذج جاهز للتنبؤ
 st.write("Model is ready for prediction.")
 user_input = st.text_input('Enter customer features as comma-separated values (matching the dataset columns)')
+
 if st.button('Predict'):
-    input_data = [float(x) for x in user_input.split(',')]
-    prediction = model.predict([input_data])
-    st.write(f'The customer is predicted to {"churn" if prediction[0] == 1 else "not churn"}.')
+    try:
+        input_data = [float(x) for x in user_input.split(',')]
+        if len(input_data) == X.shape[1]:  # Check if the input length matches the number of features
+            prediction = model.predict([input_data])
+            st.write(f'The customer is predicted to {"churn" if prediction[0] == 1 else "not churn"}.')
+        else:
+            st.error(f"Please enter {X.shape[1]} values.")
+    except ValueError:
+        st.error("Please enter valid numeric values separated by commas.")
 
 # عرض معلومات الفريق
 st.subheader("Meet Our Team")
@@ -129,3 +145,4 @@ uploaded_presentation = st.file_uploader("Upload your PowerPoint presentation", 
 if uploaded_presentation:
     st.success("Presentation uploaded successfully!")
     st.write("You can view it in PowerPoint or other presentation software.")
+
