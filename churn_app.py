@@ -136,46 +136,6 @@ plt.ylabel('Accuracy')
 st.pyplot(fig)
 
 
-
-# إدخال بيانات جديدة للتنبؤ
-st.subheader("Predict Customer Churn")
-input_data = {}
-
-# إضافة حقول الإدخال للمدخلات الجديدة
-input_data['gender'] = st.selectbox("Gender", ["Male", "Female"])
-input_data['SeniorCitizen'] = st.selectbox("Senior Citizen", [0, 1])
-input_data['Partner'] = st.selectbox("Partner", ["Yes", "No"])
-input_data['Dependents'] = st.selectbox("Dependents", ["Yes", "No"])
-input_data['tenure'] = st.number_input("Tenure (months)", min_value=0)
-input_data['PhoneService'] = st.selectbox("Phone Service", ["Yes", "No"])
-input_data['MultipleLines'] = st.selectbox("Multiple Lines", ["Yes", "No", "No phone service"])
-input_data['InternetService'] = st.selectbox("Internet Service", ["DSL", "Fiber optic", "No"])
-input_data['OnlineSecurity'] = st.selectbox("Online Security", ["Yes", "No", "No internet service"])
-input_data['OnlineBackup'] = st.selectbox("Online Backup", ["Yes", "No", "No internet service"])
-input_data['DeviceProtection'] = st.selectbox("Device Protection", ["Yes", "No", "No internet service"])
-input_data['TechSupport'] = st.selectbox("Tech Support", ["Yes", "No", "No internet service"])
-input_data['StreamingTV'] = st.selectbox("Streaming TV", ["Yes", "No", "No internet service"])
-input_data['StreamingMovies'] = st.selectbox("Streaming Movies", ["Yes", "No", "No internet service"])
-input_data['Contract'] = st.selectbox("Contract", ["Month-to-month", "One year", "Two year"])
-input_data['PaperlessBilling'] = st.selectbox("Paperless Billing", ["Yes", "No"])
-input_data['PaymentMethod'] = st.selectbox("Payment Method", ["Electronic check", "Mailed check", "Bank transfer (automatic)", "Credit card (automatic)"])
-input_data['MonthlyCharges'] = st.number_input("Monthly Charges", min_value=0.0)
-
-if st.button("Predict"):
-    input_df = pd.DataFrame([input_data])
-    input_df = label_encoder.transform(input_df)  # تأكد من معالجة المدخلات مثل بيانات التدريب
-    predictions = {}
-    for model_name, model in models.items():
-        preds = model.predict(input_df)
-        predictions[model_name] = preds[0]
-    
-    st.write("Churn Prediction Results:")
-    for model_name, prediction in predictions.items():
-        st.write(f"**{model_name}:** {'Yes' if prediction == 1 else 'No'}")
-
-
-
-
 # عرض الموارد
 st.subheader("View Resources")
 st.subheader("Jupyter Notebook")
