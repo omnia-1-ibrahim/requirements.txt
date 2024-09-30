@@ -87,34 +87,34 @@ X = data.drop('Churn', axis=1)  # استبدل 'Churn' بالعمود المست
 y = data['Churn']  # استبدل 'Churn' بالعمود المستهدف
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# اختيار النموذج
-model_choice = st.selectbox("Choose a model for prediction", ("Random Forest", "Logistic Regression", "XGBoost"))
+# إعداد النماذج
+models = {
+    "Random Forest": RandomForestClassifier(),
+    "Logistic Regression": LogisticRegression(),
+    "XGBoost": XGBClassifier()
+}
 
-if model_choice == "Random Forest":
-    model = RandomForestClassifier()
-elif model_choice == "Logistic Regression":
-    model = LogisticRegression()
-else:
-    model = XGBClassifier()
-
-model.fit(X_train, y_train)
+# تدريب النماذج وعرضها
+for model_name, model in models.items():
+    model.fit(X_train, y_train)
+    st.write(f"{model_name} model is trained.")
 
 # نموذج جاهز للتنبؤ
-st.write("Model is ready for prediction.")
+st.write("Models are ready for prediction.")
 user_input = st.text_input('Enter customer features as comma-separated values (matching the dataset columns)')
 
 if st.button('Predict'):
     try:
         input_data = [float(x) for x in user_input.split(',')]
         if len(input_data) == X.shape[1]:  # Check if the input length matches the number of features
-            prediction = model.predict([input_data])
-            st.write(f'The customer is predicted to {"churn" if prediction[0] == 1 else "not churn"}.')
+            # Get predictions from all models
+            predictions = {model_name: model.predict([input_data])[0] for model_name, model in models.items()}
+            for model_name, prediction in predictions.items():
+                st.write(f'{model_name}: The customer is predicted to {"churn" if prediction == 1 else "not churn"}.')
         else:
             st.error(f"Please enter {X.shape[1]} values.")
     except ValueError:
         st.error("Please enter valid numeric values separated by commas.")
-
-
 
 # عرض الموارد
 st.subheader("View Resources")
@@ -122,14 +122,11 @@ st.subheader("View Resources")
 st.subheader("Jupyter Notebook")
 st.write("You can view the Jupyter Notebook [here](https://github.com/omnia-1-ibrahim/requirements.txt/blob/main/final_with_mlflow%20(1).ipynb)")  # استبدل بالرابط الصحيح
 
-
 st.subheader("Power BI Report")
 st.write("You can view the Presentation [here](https://github.com/omnia-1-ibrahim/requirements.txt/blob/main/graduation%20project.pptx)")  # استبدل بالرابط الصحيح
 
-
 st.subheader("Presentation")
 st.write("You can view the Presentation [here](https://github.com/omnia-1-ibrahim/requirements.txt/blob/main/graduation%20project.pptx)")  # استبدل بالرابط الصحيح
-
 
 # عرض معلومات الفريق
 st.subheader("Meet Our Team")
@@ -145,7 +142,7 @@ team_members = [
     },
     {
         "name": "Abdelrahman Sherif Kamel",
-        "linkedin": "https://www.linkedin.com/in/abdelrahman-kamel/"
+        "linkedin": "http://linkedin.com/in/abdelrahman-sherif-203b66198"
     }
 ]
 
@@ -153,7 +150,7 @@ for member in team_members:
     st.markdown(
         f"""
         <div style="display: flex; align-items: center; margin-bottom: 10px;">
-            <span style="margin-right: 10px; font-size: 16px;">{member['name']}</span>
+            <span style="margin-right: 10px; font-size: 18px;">{member['name']}</span>  <!-- تغيير حجم الخط هنا -->
             <a href="{member['linkedin']}" target="_blank" style="background-color: orange; color: black; padding: 5px 10px; text-decoration: none; border-radius: 5px;">LinkedIn</a>
         </div>
         """,
