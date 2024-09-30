@@ -122,20 +122,14 @@ st.subheader("View Resources")
 st.subheader("Jupyter Notebook")
 st.write("You can view the Jupyter Notebook [here](https://github.com/omnia-1-ibrahim/requirements.txt/blob/main/final_with_mlflow%20(1).ipynb)")  # استبدل بالرابط الصحيح
 
+
 st.subheader("Power BI Report")
-st.write("Check the Power BI report embedded below:")
-st.markdown(
-    '<a href="file:https://github.com/omnia-1-ibrahim/requirements.txt/blob/main/graduation%20project.pptx" target="_blank">Open Presentation</a>',
-    unsafe_allow_html=True
-)
+st.write("You can view the Presentation [here](https://github.com/omnia-1-ibrahim/requirements.txt/blob/main/graduation%20project.pptx)")  # استبدل بالرابط الصحيح
+
 
 st.subheader("Presentation")
-st.write("Upload your presentation file below:")
-uploaded_presentation = st.file_uploader("Upload your PowerPoint presentation", type=["pptx", "ppt"])
+st.write("You can view the Presentation [here](https://github.com/omnia-1-ibrahim/requirements.txt/blob/main/graduation%20project.pptx)")  # استبدل بالرابط الصحيح
 
-if uploaded_presentation:
-    st.success("Presentation uploaded successfully!")
-    st.write("You can view it in PowerPoint or other presentation software.")
 
 # عرض معلومات الفريق
 st.subheader("Meet Our Team")
