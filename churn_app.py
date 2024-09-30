@@ -34,7 +34,7 @@ st.markdown(
 )
 
 # تحميل مجموعة البيانات من GitHub
-data_url = "https://github.com/omnia-1-ibrahim/requirements.txt/blob/main/WA_Fn-UseC_-Telco-Customer-Churn.csv"  # استبدل الرابط برابط الـ GitHub الخاص بك
+data_url = "https://raw.githubusercontent.com/omnia-1-ibrahim/requirements.txt/refs/heads/main/WA_Fn-UseC_-Telco-Customer-Churn.csv"  # استبدل الرابط برابط الـ GitHub الخاص بك
 data = pd.read_csv(data_url)
 
 # الصفحة الرئيسية
