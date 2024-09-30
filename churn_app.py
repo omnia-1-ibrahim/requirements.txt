@@ -35,12 +35,12 @@ st.markdown(
 )
 
 # تحميل مجموعة البيانات من GitHub
-data_url = "https://raw.githubusercontent.com/omnia-1-ibrahim/requirements.txt/refs/heads/main/WA_Fn-UseC_-Telco-Customer-Churn.csv"  # استبدل الرابط برابط الـ GitHub الخاص بك
+data_url = "https://raw.githubusercontent.com/omnia-1-ibrahim/requirements.txt/refs/heads/main/WA_Fn-UseC_-Telco-Customer-Churn.csv"
 data = pd.read_csv(data_url)
 
 # الصفحة الرئيسية
 st.title("Telecom Churn Analysis and Prediction")
-st.image("dataset-cover.png", use_column_width=True)  # تأكد من تحميل الصورة
+st.image("dataset-cover.png", use_column_width=True)
 
 # عرض البيانات الخام
 st.subheader('Raw Data')
@@ -57,18 +57,15 @@ st.bar_chart(churn_count)
 
 # إضافة رسوم بيانية تفاعلية
 st.subheader('Churn Distribution by Category')
-if 'SomeCategoryColumn' in data.columns:  # استبدل 'SomeCategoryColumn' بالعمود المناسب
+if 'SomeCategoryColumn' in data.columns:
     fig = px.histogram(data, x='Churn', color='SomeCategoryColumn', title='Churn Distribution by Category')
     st.plotly_chart(fig)
 
 # تحليل ارتباط البيانات
 st.subheader('Correlation Heatmap')
 plt.figure(figsize=(10, 6))
-
-# Select only numeric columns for correlation
 numeric_data = data.select_dtypes(include=[np.number])
 
-# Check if there are enough numeric columns to compute correlation
 if numeric_data.shape[1] > 1:
     sns.heatmap(numeric_data.corr(), annot=True, fmt=".2f", cmap='coolwarm')
 else:
@@ -83,8 +80,8 @@ label_encoder = LabelEncoder()
 for column in data.select_dtypes(include=['object']).columns:
     data[column] = label_encoder.fit_transform(data[column])
 
-X = data.drop('Churn', axis=1)  # استبدل 'Churn' بالعمود المستهدف
-y = data['Churn']  # استبدل 'Churn' بالعمود المستهدف
+X = data.drop('Churn', axis=1)
+y = data['Churn']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 # إعداد النماذج
@@ -94,56 +91,67 @@ models = {
     "XGBoost": XGBClassifier()
 }
 
-# تدريب النماذج وحساب الأداء
-predictions = {}
-for model_name, model in models.items():
-    model.fit(X_train, y_train)
-    preds = model.predict(X_test)
-    predictions[model_name] = preds
-    
-    # حساب مقاييس الأداء
-    accuracy = accuracy_score(y_test, preds)
-    recall = recall_score(y_test, preds)
-    f1 = f1_score(y_test, preds)
-    conf_matrix = confusion_matrix(y_test, preds)
-    
-    # عرض النتائج
-    st.write(f"### {model_name} Performance:")
-    st.write(f"**Accuracy:** {accuracy:.2f}")
-    st.write(f"**Recall:** {recall:.2f}")
-    st.write(f"**F1 Score:** {f1:.2f}")
-    
-    # عرض مصفوفة الارتباك
-    st.write("**Confusion Matrix:**")
-    st.write(conf_matrix)
-    
-    # رسم مصفوفة الارتباك
-    plt.figure(figsize=(5, 4))
-    sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', xticklabels=['Not Churn', 'Churn'], yticklabels=['Not Churn', 'Churn'])
-    plt.xlabel('Predicted')
-    plt.ylabel('Actual')
-    plt.title(f'{model_name} Confusion Matrix')
-    st.pyplot(plt)
+# إضافة اختيار النموذج
+selected_model = st.selectbox("Select a model to evaluate:", list(models.keys()))
+
+# تدريب النموذج المحدد
+model = models[selected_model]
+model.fit(X_train, y_train)
+preds = model.predict(X_test)
+
+# حساب مقاييس الأداء
+accuracy = accuracy_score(y_test, preds)
+recall = recall_score(y_test, preds)
+f1 = f1_score(y_test, preds)
+conf_matrix = confusion_matrix(y_test, preds)
+
+# عرض النتائج
+st.write(f"### {selected_model} Performance:")
+st.write(f"**Accuracy:** {accuracy:.2f}")
+st.write(f"**Recall:** {recall:.2f}")
+st.write(f"**F1 Score:** {f1:.2f}")
+
+# عرض مصفوفة الارتباك
+st.write("**Confusion Matrix:**")
+st.write(conf_matrix)
+
+# رسم مصفوفة الارتباك
+plt.figure(figsize=(5, 4))
+sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', xticklabels=['Not Churn', 'Churn'], yticklabels=['Not Churn', 'Churn'])
+plt.xlabel('Predicted')
+plt.ylabel('Actual')
+plt.title(f'{selected_model} Confusion Matrix')
+st.pyplot(plt)
+
+# إضافة رسم بياني لمقارنة دقة النماذج
+model_names = list(models.keys())
+accuracies = [accuracy_score(y_test, models[name].fit(X_train, y_train).predict(X_test)) for name in model_names]
+
+# رسم بار
+fig = plt.figure(figsize=(10, 5))
+sns.barplot(x=model_names, y=accuracies)
+plt.title('Model Accuracy Comparison')
+plt.xlabel('Models')
+plt.ylabel('Accuracy')
+st.pyplot(fig)
 
 # عرض الموارد
 st.subheader("View Resources")
-
 st.subheader("Jupyter Notebook")
-st.write("You can view the Jupyter Notebook [here](https://github.com/omnia-1-ibrahim/requirements.txt/blob/main/final_with_mlflow%20(1).ipynb)")  # استبدل بالرابط الصحيح
+st.write("You can view the Jupyter Notebook [here](https://github.com/omnia-1-ibrahim/requirements.txt/blob/main/final_with_mlflow%20(1).ipynb)")
 
 st.subheader("Power BI Report")
 st.write("You can view the Presentation [here](https://github.com/omnia-1-ibrahim/requirements.txt/blob/main/4_6041671993533667237.pbix)")
 
 st.subheader("Presentation")
-st.write("You can view the Presentation [here](https://github.com/omnia-1-ibrahim/requirements.txt/blob/main/graduation%20project.pptx)")  
+st.write("You can view the Presentation [here](https://github.com/omnia-1-ibrahim/requirements.txt/blob/main/graduation%20project.pptx)")
 
 # عرض معلومات الفريق
 st.subheader("Meet Our Team")
-
 team_members = [
     {
         "name": "Omnia Ibrahim Sayed",
-        "linkedin": "https://www.linkedin.com/in/omnia-ibrahim-8168b022b"  
+        "linkedin": "https://www.linkedin.com/in/omnia-ibrahim-8168b022b"
     },
     {
         "name": "Yossef Mohamed Mohamed",
