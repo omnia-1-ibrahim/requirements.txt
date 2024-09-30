@@ -125,7 +125,7 @@ st.write("You can view the Jupyter Notebook [here](https://github.com/omnia-1-ib
 st.subheader("Power BI Report")
 st.write("Check the Power BI report embedded below:")
 st.markdown(
-    '<iframe width="800" height="600" src="YOUR_POWER_BI_EMBED_LINK" frameborder="0" allowFullScreen="true"></iframe>',
+    '<a href="file://C:/Users/Dell/Downloads/graduation project.pptx" target="_blank">Open Presentation</a>',
     unsafe_allow_html=True
 )
 
@@ -142,8 +142,8 @@ st.subheader("Meet Our Team")
 
 team_members = [
     {
-         "name": "Omnia Ibrahim Sayed",
-        "linkedin": "linkedin.com/in/omnia-ibrahim-8168b022b"
+        "name": "Omnia Ibrahim Sayed",
+        "linkedin": "https://www.linkedin.com/in/omnia-ibrahim-8168b022b"  # رابط LinkedIn الخاص بك
     },
     {
         "name": "Yossef Mohamed Mohamed",
@@ -165,4 +165,3 @@ for member in team_members:
         """,
         unsafe_allow_html=True
     )
-
