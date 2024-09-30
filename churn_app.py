@@ -1,4 +1,4 @@
-import streamlit as st 
+import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -11,136 +11,157 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 from xgboost import XGBClassifier
 import joblib
 
-# Application title
-st.title("Professional Telecom Churn Analysis and Prediction")
+# إعدادات الصفحة
+st.set_page_config(page_title="Telecom Churn Analysis", layout="wide")
 
-# Load default dataset option
-if st.checkbox("Use example dataset", key="use_example"):
-    data = pd.read_csv(r'C:\Users\Dell\Downloads\WA_Fn-UseC_-Telco-Customer-Churn.csv')
- # Replace with an actual churn dataset
-    st.write("Using example dataset.")
-else:
-    uploaded_file = st.file_uploader("Upload your CSV file", type="csv")
+# تخصيص الألوان
+primary_color = "#1f77b4"
+background_color = "#f0f2f5"
 
-if uploaded_file or st.checkbox("Use example dataset", key="use_example_2"):
-    if not st.checkbox("Use example dataset", key="use_example_again"):
-        data = pd.read_csv(uploaded_file)
+# تنسيق الخلفية
+st.markdown(
+    f"""
+    <style>
+    .reportview-container {{
+        background: {background_color};
+    }}
+    .sidebar .sidebar-content {{
+        background-color: {primary_color};
+    }}
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
-    # Display raw data
-    st.subheader('Raw Data')
-    st.write(data.head())
+# الشريط الجانبي للتنقل بين الصفحات
+st.sidebar.title("Navigation")
+page = st.sidebar.radio("Select a page:", ("Home", "Churn Analysis", "Prediction", "Meet Our Team", "View Resources"))
 
-    # Data summary
-    st.subheader('Dataset Summary')
-    st.write(data.describe())
-
-    # Feature selection
-    st.subheader('Feature Selection')
-    selected_features = st.multiselect('Select features for analysis', data.columns.tolist(), default=data.columns.tolist())
-
-    # Target selection
-    target_column = st.selectbox("Select target variable", data.columns.tolist(), index=data.columns.tolist().index('Churn'))  # Replace 'Churn' with actual target column
-
-    # Exploratory data analysis
-    st.subheader('Exploratory Data Analysis')
-    if st.checkbox('Show distribution of target variable', key="show_distribution"):
-        churn_count = data[target_column].value_counts()
-        st.write(f"Churned: {churn_count[1]}, Not churned: {churn_count[0]}")
-        fig = px.histogram(data, x=target_column, title='Churn Distribution')
-        st.plotly_chart(fig)
-
-    # Data Preparation
-    st.subheader('Data Preparation')
-    # Convert categorical columns to numeric
-    label_encoder = LabelEncoder()
-    for column in selected_features:
-        if data[column].dtype == 'object':
-            data[column] = label_encoder.fit_transform(data[column])
-
-    # Split the data into features (X) and target (y)
-    X = data[selected_features]
-    y = data[target_column]
-
-    # Split ratio input
-    test_size = st.slider('Select test data size (in %)', 10, 50, 20, key="test_size") / 100
-
-    # Split data into training and testing
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
-
-    # Model selection
-    st.subheader('Model Selection and Training')
-    model_choice = st.selectbox("Choose a model", ('Random Forest', 'Logistic Regression', 'XGBoost'))
-
-    n_estimators = st.slider('Number of trees for Random Forest', 100, 1000, step=50, key="n_estimators")
-    learning_rate = st.slider('Learning rate for XGBoost', 0.01, 0.3, step=0.01, key="learning_rate")
-
-    if model_choice == 'Random Forest':
-        model = RandomForestClassifier(n_estimators=n_estimators, random_state=42)
-    elif model_choice == 'Logistic Regression':
-        model = LogisticRegression(random_state=42)
-    else:
-        model = XGBClassifier(learning_rate=learning_rate, use_label_encoder=False, eval_metric='logloss')
-
-    # Train the model
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
-
-    # Model evaluation
-    st.subheader('Model Performance')
-    accuracy = accuracy_score(y_test, y_pred)
-    precision = precision_score(y_test, y_pred)
-    recall = recall_score(y_test, y_pred)
-    f1 = f1_score(y_test, y_pred)
-
-    st.write(f'Accuracy: {accuracy * 100:.2f}%')
-    st.write(f'Precision: {precision:.2f}')
-    st.write(f'Recall: {recall:.2f}')
-    st.write(f'F1 Score: {f1:.2f}')
-
-    # Display classification report
-    st.subheader('Classification Report')
-    st.text(classification_report(y_test, y_pred))
-
-    # Confusion Matrix
-    st.subheader('Confusion Matrix')
-    cm = confusion_matrix(y_test, y_pred)
-    sns.heatmap(cm, annot=True, fmt="d", cmap="Blues")
-    st.pyplot(plt)
-
-    # Feature Importance (only for Random Forest)
-    if model_choice == 'Random Forest':
-        st.subheader('Feature Importance')
-        importance = pd.Series(model.feature_importances_, index=selected_features)
-        importance = importance.sort_values(ascending=False)
-        sns.barplot(x=importance, y=importance.index)
-        st.pyplot(plt)
-
-    # Real-Time Prediction
-    st.subheader('Make a Real-Time Prediction')
-    user_input = st.text_input('Enter customer features as comma-separated values')
-
-    if st.button('Predict'):
-        # Convert input into dataframe
-        input_data = [float(x) for x in user_input.split(',')]
-        input_df = pd.DataFrame([input_data], columns=selected_features)
-
-        # Make prediction
-        prediction = model.predict(input_df)
-        st.write(f'The customer is predicted to {"churn" if prediction[0] == 1 else "not churn"}.')
-
-    # Save the trained model
-    if st.button('Save Model'):
-        joblib.dump(model, 'churn_model.pkl')
-        st.write("Model saved successfully!")
-
-    # Recommendations
-    st.subheader('Recommendations Based on Analysis')
-    st.write(""" 
-    1. New customers are more likely to churn. Offer attractive deals to retain them.
-    2. Provide rewards or gifts for customers with short-term contracts to encourage renewal.
-    3. Long-tenure customers rarely churn, so offer them privileges to maintain loyalty.
+# الصفحة الرئيسية
+if page == "Home":
+    st.title("Telecom Churn Analysis and Prediction")
+    st.image("path_to_your_image.jpg", use_column_width=True)  # استبدل بمسار الصورة الخاصة بك
+    st.write("""
+    Welcome to our Telecom Churn Analysis and Prediction application. Use the sidebar to navigate to different sections.
+    
+    This application allows you to analyze customer churn data, predict future churn, and understand customer behavior.
     """)
 
-# If no file is uploaded
-else:
-    st.write("Please upload a CSV file or use the example dataset to start the analysis.")
+# صفحة تحليل الـ Churn
+elif page == "Churn Analysis":
+    st.title("Churn Analysis")
+    st.subheader("About the Data")
+    st.write("""
+    The dataset includes information about:
+    - Customers who left within the last month (Churn)
+    - Services that each customer has signed up for
+    - Customer account information
+    - Demographic info about customers
+    """)
+
+    # تحميل مجموعة البيانات
+    uploaded_file = st.sidebar.file_uploader("Upload your CSV file for Churn Analysis", type="csv")
+    
+    # خيار تحميل مجموعة بيانات أخرى
+    if st.sidebar.button("Load Another Dataset"):
+        uploaded_file = st.sidebar.file_uploader("Upload another CSV file", type="csv")
+
+    if uploaded_file:
+        data = pd.read_csv(uploaded_file)
+        st.subheader('Raw Data')
+        st.write(data.head())
+
+        # استعراض بيانات التحليل
+        st.subheader('Data Summary')
+        st.write(data.describe())
+
+        # تحليل البيانات باستخدام الرسوم البيانية
+        churn_count = data['Churn'].value_counts()
+        st.bar_chart(churn_count)
+
+        # إضافة رسوم بيانية تفاعلية
+        st.subheader('Churn Distribution by Category')
+        if 'SomeCategoryColumn' in data.columns:  # استبدل 'SomeCategoryColumn' بالعمود المناسب
+            fig = px.histogram(data, x='Churn', color='SomeCategoryColumn', title='Churn Distribution by Category')
+            st.plotly_chart(fig)
+
+        # تحليل ارتباط البيانات
+        st.subheader('Correlation Heatmap')
+        plt.figure(figsize=(10, 6))
+        sns.heatmap(data.corr(), annot=True, fmt=".2f", cmap='coolwarm')
+        st.pyplot()
+
+# صفحة التنبؤ
+elif page == "Prediction":
+    st.title("Churn Prediction")
+    st.subheader("Predict Customer Churn")
+    
+    uploaded_file = st.file_uploader("Upload your CSV file for Prediction", type="csv")
+
+    if uploaded_file:
+        data = pd.read_csv(uploaded_file)
+
+        # إعداد نموذج التنبؤ
+        label_encoder = LabelEncoder()
+        for column in data.select_dtypes(include=['object']).columns:
+            data[column] = label_encoder.fit_transform(data[column])
+
+        X = data.drop('Churn', axis=1)  # استبدل 'Churn' بالعمود المستهدف
+        y = data['Churn']  # استبدل 'Churn' بالعمود المستهدف
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+        # اختيار النموذج
+        model_choice = st.selectbox("Choose a model for prediction", ("Random Forest", "Logistic Regression", "XGBoost"))
+
+        if model_choice == "Random Forest":
+            model = RandomForestClassifier()
+        elif model_choice == "Logistic Regression":
+            model = LogisticRegression()
+        else:
+            model = XGBClassifier()
+
+        model.fit(X_train, y_train)
+        
+        # نموذج جاهز للتنبؤ
+        st.write("Model is ready for prediction.")
+        user_input = st.text_input('Enter customer features as comma-separated values (matching the dataset columns)')
+        if st.button('Predict'):
+            input_data = [float(x) for x in user_input.split(',')]
+            prediction = model.predict([input_data])
+            st.write(f'The customer is predicted to {"churn" if prediction[0] == 1 else "not churn"}.')
+
+# صفحة فريق العمل
+elif page == "Meet Our Team":
+    st.title("Meet Our Team")
+    st.write("""
+    Our team consists of dedicated professionals:
+    - Abdelrahman Sherif Kamel
+    - Yossef Mohamed Mohamed
+    - Omnia Ibrahim Sayed
+    """)
+    st.write("Contact: support@example.com")  # إضافة معلومات الاتصال
+    st.image("path_to_team_image.jpg", use_column_width=True)  # استبدل بمسار صورة الفريق
+
+# صفحة عرض الموارد
+elif page == "View Resources":
+    st.title("View Resources")
+    
+    st.subheader("Jupyter Notebook")
+    st.write("You can view the Jupyter Notebook [here](https://nbviewer.jupyter.org/)")  # استبدل بالرابط الصحيح
+
+    st.subheader("Power BI Report")
+    st.write("Check the Power BI report embedded below:")
+    st.markdown(
+        '<iframe width="800" height="600" src="YOUR_POWER_BI_EMBED_LINK" frameborder="0" allowFullScreen="true"></iframe>',
+        unsafe_allow_html=True
+    )
+
+    st.subheader("Presentation")
+    st.write("Upload your presentation file below:")
+    uploaded_presentation = st.file_uploader("Upload your PowerPoint presentation", type=["pptx", "ppt"])
+    
+    if uploaded_presentation:
+        st.success("Presentation uploaded successfully!")
+        st.write("You can view it in PowerPoint or other presentation software.")
+
+# المزيد من المحتوى كما تحتاج في كل صفحة
