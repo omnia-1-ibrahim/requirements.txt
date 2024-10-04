@@ -8,9 +8,8 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, classification_report, confusion_matrix
+from sklearn.metrics import accuracy_score, recall_score, f1_score, confusion_matrix
 from xgboost import XGBClassifier
-import joblib
 
 # إعدادات الصفحة
 st.set_page_config(page_title="Telecom Churn Analysis", layout="wide")
@@ -34,7 +33,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# تحميل مجموعة البيانات من GitHub
+# تحميل مجموعة البيانات
 data_url = "https://raw.githubusercontent.com/omnia-1-ibrahim/requirements.txt/refs/heads/main/WA_Fn-UseC_-Telco-Customer-Churn.csv"
 data = pd.read_csv(data_url)
 
@@ -46,107 +45,65 @@ st.image("dataset-cover.png", use_column_width=True)
 st.subheader('Raw Data')
 st.write(data.head())
 
-# استعراض بيانات التحليل
-st.subheader('Data Summary')
-st.write(data.describe())
-
 # تحليل البيانات باستخدام الرسوم البيانية
 st.subheader('Churn Analysis')
 churn_count = data['Churn'].value_counts()
 st.bar_chart(churn_count)
 
-# إضافة رسوم بيانية تفاعلية
-st.subheader('Churn Distribution by Category')
-if 'SomeCategoryColumn' in data.columns:
-    fig = px.histogram(data, x='Churn', color='SomeCategoryColumn', title='Churn Distribution by Category')
-    st.plotly_chart(fig)
+# إنشاء نموذج الإدخال
+st.subheader("Churn Prediction Input Form")
 
-# تحليل ارتباط البيانات
-st.subheader('Correlation Heatmap')
-plt.figure(figsize=(10, 6))
-numeric_data = data.select_dtypes(include=[np.number])
+# Inputs for Machine Learning model
+senior_citizen = st.selectbox("Senior Citizen", ["No", "Yes"])
+partner = st.selectbox("Partner", ["No", "Yes"])
+dependent = st.selectbox("Dependent", ["No", "Yes"])
+tenure = st.slider("Tenure (months)", 0, 100)
+multiple_lines = st.selectbox("Multiple Lines", ["No", "Yes"])
+internet_service = st.selectbox("Internet Service", ["DSL", "Fiber optic", "No"])
+online_backup = st.selectbox("Online Backup", ["No", "Yes"])
+online_security = st.selectbox("Online Security", ["No", "Yes"])
+device_protection = st.selectbox("Device Protection", ["No", "Yes"])
+tech_support = st.selectbox("Tech Support", ["No", "Yes"])
+streaming_tv = st.selectbox("Streaming TV", ["No", "Yes"])
+streaming_movies = st.selectbox("Streaming Movies", ["No", "Yes"])
+contract_type = st.selectbox("Contract Type", ["Month-to-month", "One year", "Two year"])
+paperless_billing = st.selectbox("Paperless Billing", ["No", "Yes"])
+payment_method = st.selectbox("Payment Method", ["Electronic check", "Mailed check", "Bank transfer", "Credit card"])
+monthly_charges = st.slider("Monthly Charges", 0.0, 150.0, step=0.1)
+total_charges = st.slider("Total Charges", 0.0, 8000.0, step=0.1)
 
-if numeric_data.shape[1] > 1:
-    sns.heatmap(numeric_data.corr(), annot=True, fmt=".2f", cmap='coolwarm')
-else:
-    st.write("Not enough numeric columns to compute correlation.")
-
-st.pyplot()
-
-# إعداد نموذج التنبؤ
-st.subheader("Churn Prediction")
-
-label_encoder = LabelEncoder()
-for column in data.select_dtypes(include=['object']).columns:
-    data[column] = label_encoder.fit_transform(data[column])
-
-X = data.drop('Churn', axis=1)
-y = data['Churn']
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-# إعداد النماذج
-models = {
-    "Random Forest": RandomForestClassifier(),
-    "Logistic Regression": LogisticRegression(),
-    "XGBoost": XGBClassifier()
+# Collecting input data
+input_data = {
+    "Senior Citizen": senior_citizen,
+    "Partner": partner,
+    "Dependent": dependent,
+    "Tenure": tenure,
+    "Multiple Lines": multiple_lines,
+    "Internet Service": internet_service,
+    "Online Backup": online_backup,
+    "Online Security": online_security,
+    "Device Protection": device_protection,
+    "Tech Support": tech_support,
+    "Streaming TV": streaming_tv,
+    "Streaming Movies": streaming_movies,
+    "Contract Type": contract_type,
+    "Paperless Billing": paperless_billing,
+    "Payment Method": payment_method,
+    "Monthly Charges": monthly_charges,
+    "Total Charges": total_charges
 }
 
-# إضافة اختيار النموذج
-selected_model = st.selectbox("Select a model to evaluate:", list(models.keys()))
+# Label Encoding
+label_encoder = LabelEncoder()
+for feature in ["Senior Citizen", "Partner", "Dependent", "Multiple Lines", "Internet Service", 
+                "Online Backup", "Online Security", "Device Protection", "Tech Support", 
+                "Streaming TV", "Streaming Movies", "Contract Type", "Paperless Billing", "Payment Method"]:
+    input_data[feature] = label_encoder.fit_transform([input_data[feature]])[0]
 
-# تدريب النموذج المحدد
-model = models[selected_model]
-model.fit(X_train, y_train)
-preds = model.predict(X_test)
+# Display the encoded inputs
+st.write("Encoded Inputs for ML model:", input_data)
 
-# حساب مقاييس الأداء
-accuracy = accuracy_score(y_test, preds)
-recall = recall_score(y_test, preds)
-f1 = f1_score(y_test, preds)
-conf_matrix = confusion_matrix(y_test, preds)
-
-# عرض النتائج
-st.write(f"### {selected_model} Performance:")
-st.write(f"**Accuracy:** {accuracy:.2f}")
-st.write(f"**Recall:** {recall:.2f}")
-st.write(f"**F1 Score:** {f1:.2f}")
-
-# عرض مصفوفة الارتباك
-st.write("**Confusion Matrix:**")
-st.write(conf_matrix)
-
-# رسم مصفوفة الارتباك
-plt.figure(figsize=(5, 4))
-sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', xticklabels=['Not Churn', 'Churn'], yticklabels=['Not Churn', 'Churn'])
-plt.xlabel('Predicted')
-plt.ylabel('Actual')
-plt.title(f'{selected_model} Confusion Matrix')
-st.pyplot(plt)
-
-# إضافة رسم بياني لمقارنة دقة النماذج
-model_names = list(models.keys())
-accuracies = [accuracy_score(y_test, models[name].fit(X_train, y_train).predict(X_test)) for name in model_names]
-
-# رسم بار
-fig = plt.figure(figsize=(10, 5))
-sns.barplot(x=model_names, y=accuracies)
-plt.title('Model Accuracy Comparison')
-plt.xlabel('Models')
-plt.ylabel('Accuracy')
-st.pyplot(fig)
-
-
-# عرض الموارد
-st.subheader("View Resources")
-st.subheader("Jupyter Notebook")
-st.write("You can view the Jupyter Notebook [here](https://github.com/omnia-1-ibrahim/requirements.txt/blob/main/final_with_mlflow%20(1).ipynb)")
-
-st.subheader("Power BI Report")
-st.write("You can view the Presentation [here](https://github.com/omnia-1-ibrahim/requirements.txt/blob/main/4_6041671993533667237.pbix)")
-
-st.subheader("Presentation")
-st.write("You can view the Presentation [here](https://github.com/omnia-1-ibrahim/requirements.txt/blob/main/graduation%20project.pptx)")
-
+# Process the input for prediction (assuming model is trained separately)
 # عرض معلومات الفريق
 st.subheader("Meet Our Team")
 team_members = [
