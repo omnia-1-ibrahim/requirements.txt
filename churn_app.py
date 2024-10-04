@@ -103,7 +103,36 @@ for feature in ["Senior Citizen", "Partner", "Dependent", "Multiple Lines", "Int
 # Display the encoded inputs
 st.write("Encoded Inputs for ML model:", input_data)
 
-# Process the input for prediction (assuming model is trained separately)
+# Load or train your ML model (You need to train the model first in your workflow)
+# For simplicity, here we are retraining the model
+X = data.drop('Churn', axis=1)
+y = data['Churn']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Train models
+models = {
+    "Random Forest": RandomForestClassifier(),
+    "Logistic Regression": LogisticRegression(),
+    "XGBoost": XGBClassifier()
+}
+
+for model in models.values():
+    model.fit(X_train, y_train)
+
+# Predict button
+if st.button("Predict Churn"):
+    # Create a DataFrame for input data to predict
+    input_df = pd.DataFrame([input_data])
+    
+    # Make predictions
+    predictions = models["Random Forest"].predict(input_df)  # Example using Random Forest
+
+    # Display prediction result
+    if predictions[0] == 1:
+        st.success("The customer is predicted to churn.")
+    else:
+        st.success("The customer is predicted not to churn.")
+
 # عرض معلومات الفريق
 st.subheader("Meet Our Team")
 team_members = [
