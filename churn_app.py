@@ -8,7 +8,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics import accuracy_score, recall_score, f1_score, confusion_matrix
+from sklearn.metrics import accuracy_score, recall_score, f1_score, classification_report, confusion_matrix
 from xgboost import XGBClassifier
 
 # إعدادات الصفحة
@@ -33,7 +33,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# تحميل مجموعة البيانات
+# تحميل مجموعة البيانات من GitHub
 data_url = "https://raw.githubusercontent.com/omnia-1-ibrahim/requirements.txt/refs/heads/main/WA_Fn-UseC_-Telco-Customer-Churn.csv"
 data = pd.read_csv(data_url)
 
@@ -45,100 +45,128 @@ st.image("dataset-cover.png", use_column_width=True)
 st.subheader('Raw Data')
 st.write(data.head())
 
+# استعراض بيانات التحليل
+st.subheader('Data Summary')
+st.write(data.describe())
+
 # تحليل البيانات باستخدام الرسوم البيانية
 st.subheader('Churn Analysis')
 churn_count = data['Churn'].value_counts()
 st.bar_chart(churn_count)
 
-# إنشاء نموذج الإدخال
-st.subheader("Churn Prediction Input Form")
+# إضافة رسوم بيانية تفاعلية
+st.subheader('Churn Distribution by Category')
+if 'SomeCategoryColumn' in data.columns:
+    fig = px.histogram(data, x='Churn', color='SomeCategoryColumn', title='Churn Distribution by Category')
+    st.plotly_chart(fig)
 
-# Inputs for Machine Learning model
-senior_citizen = st.selectbox("Senior Citizen", ["No", "Yes"])
-partner = st.selectbox("Partner", ["No", "Yes"])
-dependent = st.selectbox("Dependent", ["No", "Yes"])
-tenure = st.slider("Tenure (months)", 0, 100)
-multiple_lines = st.selectbox("Multiple Lines", ["No", "Yes"])
-internet_service = st.selectbox("Internet Service", ["DSL", "Fiber optic", "No"])
-online_backup = st.selectbox("Online Backup", ["No", "Yes"])
-online_security = st.selectbox("Online Security", ["No", "Yes"])
-device_protection = st.selectbox("Device Protection", ["No", "Yes"])
-tech_support = st.selectbox("Tech Support", ["No", "Yes"])
-streaming_tv = st.selectbox("Streaming TV", ["No", "Yes"])
-streaming_movies = st.selectbox("Streaming Movies", ["No", "Yes"])
-contract_type = st.selectbox("Contract Type", ["Month-to-month", "One year", "Two year"])
-paperless_billing = st.selectbox("Paperless Billing", ["No", "Yes"])
-payment_method = st.selectbox("Payment Method", ["Electronic check", "Mailed check", "Bank transfer", "Credit card"])
-monthly_charges = st.slider("Monthly Charges", 0.0, 150.0, step=0.1)
-total_charges = st.slider("Total Charges", 0.0, 8000.0, step=0.1)
+# تحليل ارتباط البيانات
+st.subheader('Correlation Heatmap')
+plt.figure(figsize=(10, 6))
+numeric_data = data.select_dtypes(include=[np.number])
+if numeric_data.shape[1] > 1:
+    sns.heatmap(numeric_data.corr(), annot=True, fmt=".2f", cmap='coolwarm')
+else:
+    st.write("Not enough numeric columns to compute correlation.")
+st.pyplot()
 
-# Collecting input data
-input_data = {
-    "Senior Citizen": senior_citizen,
-    "Partner": partner,
-    "Dependent": dependent,
-    "Tenure": tenure,
-    "Multiple Lines": multiple_lines,
-    "Internet Service": internet_service,
-    "Online Backup": online_backup,
-    "Online Security": online_security,
-    "Device Protection": device_protection,
-    "Tech Support": tech_support,
-    "Streaming TV": streaming_tv,
-    "Streaming Movies": streaming_movies,
-    "Contract Type": contract_type,
-    "Paperless Billing": paperless_billing,
-    "Payment Method": payment_method,
-    "Monthly Charges": monthly_charges,
-    "Total Charges": total_charges
-}
+# إعداد نموذج التنبؤ
+st.subheader("Churn Prediction")
 
-# Label Encoding
 label_encoder = LabelEncoder()
-for feature in ["Senior Citizen", "Partner", "Dependent", "Multiple Lines", "Internet Service", 
-                "Online Backup", "Online Security", "Device Protection", "Tech Support", 
-                "Streaming TV", "Streaming Movies", "Contract Type", "Paperless Billing", "Payment Method"]:
-    input_data[feature] = label_encoder.fit_transform([input_data[feature]])[0]
+for column in data.select_dtypes(include=['object']).columns:
+    data[column] = label_encoder.fit_transform(data[column])
 
-# Display the encoded inputs
-st.write("Encoded Inputs for ML model:", input_data)
-
-# Load or train your ML model (You need to train the model first in your workflow)
-# For simplicity, here we are retraining the model
 X = data.drop('Churn', axis=1)
 y = data['Churn']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# Train models
+# إعداد النماذج
 models = {
     "Random Forest": RandomForestClassifier(),
-    "Logistic Regression": LogisticRegression(),
-    "XGBoost": XGBClassifier()
+    "Logistic Regression": LogisticRegression(max_iter=200),
+    "XGBoost": XGBClassifier(use_label_encoder=False, eval_metric='logloss')
 }
 
-for model in models.values():
+# تدريب النماذج وحساب الأداء
+predictions = {}
+for model_name, model in models.items():
     model.fit(X_train, y_train)
-
-# Predict button
-if st.button("Predict Churn"):
-    # Create a DataFrame for input data to predict
-    input_df = pd.DataFrame([input_data])
+    preds = model.predict(X_test)
+    predictions[model_name] = preds
     
-    # Make predictions
-    predictions = models["Random Forest"].predict(input_df)  # Example using Random Forest
+    # حساب مقاييس الأداء
+    accuracy = accuracy_score(y_test, preds)
+    recall = recall_score(y_test, preds)
+    f1 = f1_score(y_test, preds)
+    conf_matrix = confusion_matrix(y_test, preds)
+    
+    # عرض النتائج
+    st.write(f"### {model_name} Performance:")
+    st.write(f"*Accuracy:* {accuracy:.2f}")
+    st.write(f"*Recall:* {recall:.2f}")
+    st.write(f"*F1 Score:* {f1:.2f}")
+    
+    # عرض مصفوفة الارتباك
+    st.write("*Confusion Matrix:*")
+    st.write(conf_matrix)
+    
+    # رسم مصفوفة الارتباك
+    plt.figure(figsize=(5, 4))
+    sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', xticklabels=['Not Churn', 'Churn'], yticklabels=['Not Churn', 'Churn'])
+    plt.xlabel('Predicted')
+    plt.ylabel('Actual')
+    plt.title(f'{model_name} Confusion Matrix')
+    st.pyplot(plt)
 
-    # Display prediction result
-    if predictions[0] == 1:
-        st.success("The customer is predicted to churn.")
-    else:
-        st.success("The customer is predicted not to churn.")
+# إدخال بيانات جديدة للتنبؤ
+st.subheader("Predict Customer Churn")
+input_data = {}
+
+# إضافة حقول الإدخال للمدخلات الجديدة
+input_data['gender'] = st.selectbox("Gender", ["Male", "Female"])
+input_data['SeniorCitizen'] = st.selectbox("Senior Citizen", [0, 1])
+input_data['Partner'] = st.selectbox("Partner", ["Yes", "No"])
+input_data['Dependents'] = st.selectbox("Dependents", ["Yes", "No"])
+input_data['tenure'] = st.number_input("Tenure (months)", min_value=0)
+input_data['PhoneService'] = st.selectbox("Phone Service", ["Yes", "No"])
+input_data['MultipleLines'] = st.selectbox("Multiple Lines", ["Yes", "No", "No phone service"])
+input_data['InternetService'] = st.selectbox("Internet Service", ["DSL", "Fiber optic", "No"])
+input_data['OnlineSecurity'] = st.selectbox("Online Security", ["Yes", "No", "No internet service"])
+input_data['OnlineBackup'] = st.selectbox("Online Backup", ["Yes", "No", "No internet service"])
+input_data['DeviceProtection'] = st.selectbox("Device Protection", ["Yes", "No", "No internet service"])
+input_data['TechSupport'] = st.selectbox("Tech Support", ["Yes", "No", "No internet service"])
+input_data['StreamingTV'] = st.selectbox("Streaming TV", ["Yes", "No", "No internet service"])
+input_data['StreamingMovies'] = st.selectbox("Streaming Movies", ["Yes", "No", "No internet service"])
+input_data['Contract'] = st.selectbox("Contract", ["Month-to-month", "One year", "Two year"])
+input_data['PaperlessBilling'] = st.selectbox("Paperless Billing", ["Yes", "No"])
+input_data['PaymentMethod'] = st.selectbox("Payment Method", ["Electronic check", "Mailed check", "Bank transfer (automatic)", "Credit card (automatic)"])
+input_data['MonthlyCharges'] = st.number_input("Monthly Charges", min_value=0.0)
+
+if st.button("Predict"):
+    input_df = pd.DataFrame([input_data])
+    input_df = label_encoder.transform(input_df)  # تأكد من معالجة المدخلات مثل بيانات التدريب
+    predictions = {}
+    for model_name, model in models.items():
+        preds = model.predict(input_df)
+        predictions[model_name] = preds[0]
+    
+    st.write("Churn Prediction Results:")
+    for model_name, prediction in predictions.items():
+        st.write(f"{model_name}:** {'Yes' if prediction == 1 else 'No'}")
+
+# عرض الموارد
+st.subheader("View Resources")
+st.write("You can view the Jupyter Notebook [here](https://github.com/omnia-1-ibrahim/requirements.txt/blob/main/final_with_mlflow%20(1).ipynb)")
+st.write("You can view the Presentation [here](https://github.com/omnia-1-ibrahim/requirements.txt/blob/main/graduation%20project.pptx)")
+st.write("You can view the Power Bi [here](https://github.com/omnia-1-ibrahim/requirements.txt/blob/main/4_6041671993533667237.pbix)")  
 
 # عرض معلومات الفريق
 st.subheader("Meet Our Team")
 team_members = [
     {
         "name": "Omnia Ibrahim Sayed",
-        "linkedin": "https://www.linkedin.com/in/omnia-ibrahim-8168b022b"
+        "linkedin": "https://www.linkedin.com/in/omnia-ibrahim-8168b022b"  
     },
     {
         "name": "Yossef Mohamed Mohamed",
