@@ -8,7 +8,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics import accuracy_score, recall_score, f1_score, classification_report, confusion_matrix
+from sklearn.metrics import accuracy_score, recall_score, f1_score, confusion_matrix
 from xgboost import XGBClassifier
 
 # إعدادات الصفحة
@@ -145,7 +145,11 @@ input_data['MonthlyCharges'] = st.number_input("Monthly Charges", min_value=0.0)
 
 if st.button("Predict"):
     input_df = pd.DataFrame([input_data])
-    input_df = label_encoder.transform(input_df)  # تأكد من معالجة المدخلات مثل بيانات التدريب
+    
+    # Apply label encoding for each column in input data
+    for column in input_df.select_dtypes(include=['object']).columns:
+        input_df[column] = label_encoder.fit_transform(input_df[column])
+        
     predictions = {}
     for model_name, model in models.items():
         preds = model.predict(input_df)
@@ -153,7 +157,7 @@ if st.button("Predict"):
     
     st.write("Churn Prediction Results:")
     for model_name, prediction in predictions.items():
-        st.write(f"{model_name}:** {'Yes' if prediction == 1 else 'No'}")
+        st.write(f"{model_name}: **{'Yes' if prediction == 1 else 'No'}**")
 
 # عرض الموارد
 st.subheader("View Resources")
@@ -188,3 +192,4 @@ for member in team_members:
         """,
         unsafe_allow_html=True
     )
+
