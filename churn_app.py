@@ -54,31 +54,24 @@ st.subheader('Churn Analysis')
 churn_count = data['Churn'].value_counts()
 st.bar_chart(churn_count)
 
-# إضافة رسوم بيانية تفاعلية
-st.subheader('Churn Distribution by Category')
-if 'SomeCategoryColumn' in data.columns:
-    fig = px.histogram(data, x='Churn', color='SomeCategoryColumn', title='Churn Distribution by Category')
-    st.plotly_chart(fig)
-
-# تحليل ارتباط البيانات
-st.subheader('Correlation Heatmap')
-plt.figure(figsize=(10, 6))
-numeric_data = data.select_dtypes(include=[np.number])
-if numeric_data.shape[1] > 1:
-    sns.heatmap(numeric_data.corr(), annot=True, fmt=".2f", cmap='coolwarm')
-else:
-    st.write("Not enough numeric columns to compute correlation.")
-st.pyplot()
-
-# إعداد نموذج التنبؤ
-st.subheader("Churn Prediction")
-
+# إعداد LabelEncoder
 label_encoder = LabelEncoder()
-for column in data.select_dtypes(include=['object']).columns:
+
+# تحويل الأعمدة الفئوية
+categorical_columns = ['gender', 'Partner', 'Dependents', 'PhoneService', 'MultipleLines', 
+                       'InternetService', 'OnlineSecurity', 'OnlineBackup', 'DeviceProtection', 
+                       'TechSupport', 'StreamingTV', 'StreamingMovies', 'Contract', 
+                       'PaperlessBilling', 'PaymentMethod']
+
+# Apply label encoding to categorical columns
+for column in categorical_columns:
     data[column] = label_encoder.fit_transform(data[column])
 
+# Prepare the data for training
 X = data.drop('Churn', axis=1)
 y = data['Churn']
+
+# Split the data
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 # إعداد النماذج
@@ -123,7 +116,7 @@ for model_name, model in models.items():
 st.subheader("Predict Customer Churn")
 input_data = {}
 
-# إضافة حقول الإدخال للمدخلات الجديدة
+# Adding fields for new input
 input_data['gender'] = st.selectbox("Gender", ["Male", "Female"])
 input_data['SeniorCitizen'] = st.selectbox("Senior Citizen", [0, 1])
 input_data['Partner'] = st.selectbox("Partner", ["Yes", "No"])
@@ -144,52 +137,23 @@ input_data['PaymentMethod'] = st.selectbox("Payment Method", ["Electronic check"
 input_data['MonthlyCharges'] = st.number_input("Monthly Charges", min_value=0.0)
 
 if st.button("Predict"):
+    # Convert the input into a DataFrame
     input_df = pd.DataFrame([input_data])
     
-    # Apply label encoding for each column in input data
-    for column in input_df.select_dtypes(include=['object']).columns:
+    # Apply the same transformations as during training
+    for column in categorical_columns:
         input_df[column] = label_encoder.fit_transform(input_df[column])
-        
+    
+    # Align input columns with training columns
+    input_df = input_df.reindex(columns=X.columns, fill_value=0)
+
+    # Predict using the trained models
     predictions = {}
     for model_name, model in models.items():
         preds = model.predict(input_df)
         predictions[model_name] = preds[0]
     
+    # Display the predictions
     st.write("Churn Prediction Results:")
     for model_name, prediction in predictions.items():
-        st.write(f"{model_name}: **{'Yes' if prediction == 1 else 'No'}**")
-
-# عرض الموارد
-st.subheader("View Resources")
-st.write("You can view the Jupyter Notebook [here](https://github.com/omnia-1-ibrahim/requirements.txt/blob/main/final_with_mlflow%20(1).ipynb)")
-st.write("You can view the Presentation [here](https://github.com/omnia-1-ibrahim/requirements.txt/blob/main/graduation%20project.pptx)")
-st.write("You can view the Power Bi [here](https://github.com/omnia-1-ibrahim/requirements.txt/blob/main/4_6041671993533667237.pbix)")  
-
-# عرض معلومات الفريق
-st.subheader("Meet Our Team")
-team_members = [
-    {
-        "name": "Omnia Ibrahim Sayed",
-        "linkedin": "https://www.linkedin.com/in/omnia-ibrahim-8168b022b"  
-    },
-    {
-        "name": "Yossef Mohamed Mohamed",
-        "linkedin": "https://www.linkedin.com/in/yousef-mohamed-8a4132221/"
-    },
-    {
-        "name": "Abdelrahman Sherif Kamel",
-        "linkedin": "http://linkedin.com/in/abdelrahman-sherif-203b66198"
-    }
-]
-
-for member in team_members:
-    st.markdown(
-        f"""
-        <div style="display: flex; align-items: center; margin-bottom: 10px;">
-            <span style="margin-right: 10px; font-size: 18px;">{member['name']}</span> 
-            <a href="{member['linkedin']}" target="_blank" style="background-color: orange; color: black; padding: 5px 10px; text-decoration: none; border-radius: 5px;">LinkedIn</a>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
+        st.write(f"{model_name}: {'Yes' if prediction == 1 else 'No'}")
